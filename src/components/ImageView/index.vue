@@ -5,7 +5,7 @@ import { useMouseInElement } from '@vueuse/core';
 defineProps({
     imageList: {
         type: Array,
-        default:() => []
+        default: () => []
     }
 })
 //1.小图切换大图显示
@@ -26,7 +26,7 @@ const positionX = ref(0)
 const positionY = ref(0)
 watch([elementX, elementY], () => {
     // 如果鼠标没有移入盒子里面 直接不执行后面的逻辑
-    if(isOutside.value) return 
+    if (isOutside.value) return
     // 有效范围内控制滑块距离
     // 横向
     if (elementX.value > 100 && elementX.value < 300) {
@@ -44,8 +44,8 @@ watch([elementX, elementY], () => {
     if (elementY.value < 100) { top.value = 0 }
 
     // 控制大图的显示
-    positionX.value = -left.value *2
-    positionY.value = -top.value *2
+    positionX.value = -left.value * 2
+    positionY.value = -top.value * 2
 })
 </script>
 

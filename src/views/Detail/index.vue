@@ -3,6 +3,9 @@ import DetailHot from './components/DetailHot.vue'
 import { getDetail } from '@/apis/detail'
 import { onMounted, ref } from 'vue';
 import { useRoute } from 'vue-router'
+import { useCartStore } from '@/stores/cartStore'
+import { ElMessage } from 'element-plus';
+const cartStore = useCartStore()
 const goods = ref({})
 const route = useRoute()
 const getGoods = async () => {
@@ -13,8 +16,35 @@ onMounted(() => {
     getGoods()
 })
 //sku规格被操作时
+let skuObj = {}
 const skuChange = (sku) => {
-    console.log(sku);
+    skuObj = sku
+}
+
+//count
+const count = ref(1)
+const countChange = (count) => {
+
+}
+
+//添加购物车
+const addCart = () => {
+    if (skuObj.skuId) {
+        //规格已经选择 触发action
+        cartStore.addCart({
+            id: goods.value.id,
+            name: goods.value.name,
+            picture: goods.value.mainPictures[0],
+            price: goods.value.price,
+            count: count.value,
+            skuId: skuObj.skuId,
+            attrsText: skuObj.specsText,
+            selected: true
+        })
+    } else {
+        //规格没有选择 提示用户
+        ElMessage.warning('请选择规格')
+    }
 }
 </script>
 
@@ -27,9 +57,11 @@ const skuChange = (sku) => {
                     <!-- 错误原因：goods一开始{} {}.categories -> undefined -> undefined[1]
                     1.可选链的语法?.
                     2.v-if手动控制渲染时机 保证只有数据存在才渲染 -->
-                    <el-breadcrumb-item :to="{ path: `/category/${goods.categories?.[1].id}` }">{{goods.categories?.[1].name}}
+                    <el-breadcrumb-item :to="{ path: `/category/${goods.categories?.[1].id}` }">{{
+                        goods.categories?.[1].name }}
                     </el-breadcrumb-item>
-                    <el-breadcrumb-item :to="{ path: `/category/sub/${goods.categories?.[0].id}` }">{{ goods.categories?.[0].name}}
+                    <el-breadcrumb-item :to="{ path: `/category/sub/${goods.categories?.[0].id}` }">{{
+                        goods.categories?.[0].name }}
                     </el-breadcrumb-item>
                     <el-breadcrumb-item>抓绒保暖，毛毛虫子儿童运动鞋</el-breadcrumb-item>
                 </el-breadcrumb>
@@ -40,38 +72,38 @@ const skuChange = (sku) => {
                     <div class="goods-info">
                         <div class="media">
                             <!-- 图片预览区 -->
-                            <XtxImageView :image-list="goods.mainPictures"/>
+                            <XtxImageView :image-list="goods.mainPictures" />
                             <!-- 统计数量 -->
                             <ul class="goods-sales">
                                 <li>
                                     <p>销量人气</p>
-                                    <p> {{goods.salesCount}}+ </p>
+                                    <p> {{ goods.salesCount }}+ </p>
                                     <p><i class="iconfont icon-task-filling"></i>销量人气</p>
                                 </li>
                                 <li>
                                     <p>商品评价</p>
-                                    <p>{{goods.commentCount}}+</p>
+                                    <p>{{ goods.commentCount }}+</p>
                                     <p><i class="iconfont icon-comment-filling"></i>查看评价</p>
                                 </li>
                                 <li>
                                     <p>收藏人气</p>
-                                    <p>{{goods.collectCount}}+</p>
+                                    <p>{{ goods.collectCount }}+</p>
                                     <p><i class="iconfont icon-favorite-filling"></i>收藏商品</p>
                                 </li>
                                 <li>
                                     <p>品牌信息</p>
-                                    <p>{{goods.brand?.name}}</p>
+                                    <p>{{ goods.brand?.name }}</p>
                                     <p><i class="iconfont icon-dynamic-filling"></i>品牌主页</p>
                                 </li>
                             </ul>
                         </div>
                         <div class="spec">
                             <!-- 商品信息区 -->
-                            <p class="g-name"> {{goods.name}} </p>
-                            <p class="g-desc">{{goods.desc}} </p>
+                            <p class="g-name"> {{ goods.name }} </p>
+                            <p class="g-desc">{{ goods.desc }} </p>
                             <p class="g-price">
-                                <span>{{goods.oldPrice}}</span>
-                                <span> {{goods.price}}</span>
+                                <span>{{ goods.oldPrice }}</span>
+                                <span> {{ goods.price }}</span>
                             </p>
                             <div class="g-service">
                                 <dl>
@@ -89,12 +121,12 @@ const skuChange = (sku) => {
                                 </dl>
                             </div>
                             <!-- sku组件 -->
-                            <XtxSku :goods="goods" @change="skuChange"/>
+                            <XtxSku :goods="goods" @change="skuChange" />
                             <!-- 数据组件 -->
-
+                            <el-input-number v-model="count" @change="countChange" />
                             <!-- 按钮组件 -->
                             <div>
-                                <el-button size="large" class="btn">
+                                <el-button size="large" class="btn" @click="addCart">
                                     加入购物车
                                 </el-button>
                             </div>
@@ -111,9 +143,9 @@ const skuChange = (sku) => {
                                 <div class="goods-detail">
                                     <!-- 属性 -->
                                     <ul class="attrs">
-                                        <li v-for="item in goods.details?.properties"  :key="item.value">
-                                            <span class="dt">{{item.name}}</span>
-                                            <span class="dd">{{item.value}}</span>
+                                        <li v-for="item in goods.details?.properties" :key="item.value">
+                                            <span class="dt">{{ item.name }}</span>
+                                            <span class="dd">{{ item.value }}</span>
                                         </li>
                                     </ul>
                                     <!-- 图片 -->
@@ -124,9 +156,9 @@ const skuChange = (sku) => {
                         <!-- 24热榜+专题推荐 -->
                         <div class="goods-aside">
                             <!-- 24小时 -->
-                            <DetailHot :hot-type="1"/>
+                            <DetailHot :hot-type="1" />
                             <!-- 周 -->
-                            <DetailHot :hot-type="2"/>
+                            <DetailHot :hot-type="2" />
                         </div>
                     </div>
                 </div>
