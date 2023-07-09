@@ -2,7 +2,7 @@
 import axios from 'axios';
 axios({
   method: 'get',
-  url:'https://syt.atguigu.cn/api/hosp/hospital/1/5'
+  url:'http://syt.atguigu.cn/api/hosp/hospital/1/5'
 }).then(response => {
   console.log(response.data)
 }).catch(error => {
